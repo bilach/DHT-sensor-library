@@ -30,7 +30,6 @@ float DHT::readTemperature(bool S) {
       f = data[2];
       if(S)
       	f = convertCtoF(f);
-      	
       return f;
     case DHT22:
     case DHT21:
@@ -74,6 +73,41 @@ float DHT::readHumidity(void) {
   return NAN;
 }
 
+//boolean S == Scale.  True == Farenheit; False == Celcius
+//pointer to h Humidity
+//pointer to t Temprature
+void DHT::readHT( float *h, float *t, bool S) {
+
+  if (read()) {
+    switch (_type) {
+    case DHT11:
+      *h = data[0];
+      *t = data[2];
+      if(S)
+      	*t = convertCtoF(*t);
+      return;
+    case DHT22:
+    case DHT21:
+      *t = data[2] & 0x7F;
+      *t *= 256;
+      *t += data[3];
+      *t /= 10;
+      if (data[2] & 0x80)
+	    *t *= -1;
+      if(S)
+	    *t = convertCtoF(*t);
+      *h = data[0];
+      *h *= 256;
+      *h += data[1];
+      *h /= 10;
+      return;
+    }
+  }
+  Serial.print("Read fail");
+  *t = *h = NAN;
+  return;
+ 
+}
 
 boolean DHT::read(void) {
   uint8_t laststate = HIGH;
@@ -83,7 +117,8 @@ boolean DHT::read(void) {
 
   // pull the pin high and wait 250 milliseconds
   digitalWrite(_pin, HIGH);
-  delay(250);
+  //delay(250);
+  delay(50);
 
   currenttime = millis();
   if (currenttime < _lastreadtime) {

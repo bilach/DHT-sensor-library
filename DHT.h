@@ -34,6 +34,6 @@ class DHT {
   float readTemperature(bool S=false);
   float convertCtoF(float);
   float readHumidity(void);
-
+  void readHT(float *, float *, bool);
 };
 #endif
